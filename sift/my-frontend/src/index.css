@@ -1,14 +1,9 @@
+@import "@fontsource/inter"; /* or use CDN in index.html */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: consistent font family override */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-}
-
-/* Optional: prevent horizontal scroll on small screens */
-body {
-  margin: 0;
-  overflow-x: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
 }

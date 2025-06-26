@@ -1,15 +1,17 @@
 import SidebarNav from '../components/SidebarNav';
 import MainHero from '../components/MainHero';
-
+import TopNavBar from '../components/TopNavBar';
 
 export default function Home() {
   return (
-    <div className="bg-black text-white min-h-screen flex">
+    <div className="min-h-screen flex text-black bg-white font-sans">
       <SidebarNav />
-      <main className="flex-1 flex flex-col justify-center items-center px-6">
-        <MainHero />
-
-      </main>
+      <div className="flex-1 flex flex-col">
+        <TopNavBar />
+        <div className="flex-1 flex items-center justify-center">
+          <MainHero />
+        </div>
+      </div>
     </div>
   );
 }
