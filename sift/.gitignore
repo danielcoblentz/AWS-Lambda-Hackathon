@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+REACT_APP_AUTHORITY = https://cognito-idp.us-east-2.amazonaws.com/us-east-2_4u3HgpaMD
+REACT_APP_CLIENT_ID = 2ve29s1o0gihe71psda6n95ljh
+REACT_APP_REDIRECT_URL = 2ve29s1o0gihe71psda6n95ljh
+REACT_APP_RESPONSE_TYPE = code
+REACT_APP_RESPONSE_SCOPE = openid email profile
+
