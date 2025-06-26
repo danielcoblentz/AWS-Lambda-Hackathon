@@ -6,17 +6,24 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Modal,
+  Button,
 } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import SendIcon from "@mui/icons-material/Send";
+import FolderIcon from '@mui/icons-material/Folder';
 import { useState, useEffect } from "react";
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+import CustomTreeItem from '../components/CustomTreeItem';
 
 export default function MainHero() {
-  // simulate loading and fake documents
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<Array<{ title: string; vendor: string; date: string }>>([]);
+  const [graphOpen, setGraphOpen] = useState(false);
 
-  //sample documetns for testing will change later once we have scanning page/feature
+  const handleOpenGraph = () => setGraphOpen(true);
+  const handleCloseGraph = () => setGraphOpen(false);
+
   useEffect(() => {
     setTimeout(() => {
       setDocuments([
@@ -26,16 +33,20 @@ export default function MainHero() {
         { title: "Lunch Receipt", vendor: "Chipotle", date: "2024-07-22" },
         { title: "Hardware Store", vendor: "Home Depot", date: "2024-07-20" },
         { title: "Coffee", vendor: "Starbucks", date: "2024-07-19" },
-        { title: "Online Purchase", vendor: "Amazon", date: "2024-07-18" },
-        { title: "Ride Share", vendor: "Uber", date: "2024-07-15" },
-        { title: "Pharmacy", vendor: "CVS", date: "2024-07-12" },
-        { title: "Clothing", vendor: "Uniqlo", date: "2024-07-10" },
-        { title: "Dining", vendor: "Nando’s", date: "2024-07-08" },
-        { title: "Pet Store", vendor: "PetSmart", date: "2024-07-06" },
       ]);
       setLoading(false);
-    }, 2000); 
+    }, 2000);
   }, []);
+
+  const mockFileStructure = {
+    "2024": {
+      January: ["Amazon - Order #123.pdf", "Chipotle - Lunch.png"],
+      February: ["CVS - Pharmacy.pdf"],
+    },
+    "2023": {
+      December: ["Uber - Ride.pdf", "BGE - Utilities.pdf"],
+    },
+  };
 
   return (
     <Box
@@ -49,7 +60,7 @@ export default function MainHero() {
       width="100%"
       pt={1}
     >
-      {/* recent socuments section this will be populated with actual scanned items by the user */}
+      {/* Recent Documents Section */}
       <Box width="100%" maxWidth="1200px" mb={6}>
         <Typography variant="subtitle1" fontWeight="bold" mb={1}>
           Recent Documents
@@ -78,7 +89,7 @@ export default function MainHero() {
         )}
       </Box>
 
-      {/* search header */}
+      {/* Search Header */}
       <Typography
         variant="h5"
         sx={{
@@ -90,7 +101,7 @@ export default function MainHero() {
         Search for Documents
       </Typography>
 
-      {/* main search bar */}
+      {/* Search Bar with Graph View Button */}
       <Box width="100%" maxWidth="1200px">
         <TextField
           placeholder="search by doc name, date or vendor"
@@ -112,11 +123,75 @@ export default function MainHero() {
                 <IconButton edge="end">
                   <SendIcon sx={{ color: '#000' }} />
                 </IconButton>
+                <Button onClick={handleOpenGraph} sx={{ ml: 1 }} size="small">
+                  Graph View
+                </Button>
               </InputAdornment>
             ),
           }}
         />
       </Box>
+
+      {/* Graph View Overlay */}
+      <Modal open={graphOpen} onClose={handleCloseGraph}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '5%',
+            left: '12.5%',
+            width: '75vw',
+            maxHeight: '90vh',
+            bgcolor: '#fdfdfd',
+            boxShadow: 24,
+            p: 3,
+            borderRadius: 3,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {/* Search bar */}
+          <TextField
+            variant="outlined"
+            placeholder="Search for document..."
+            size="small"
+            sx={{
+              mb: 2,
+              bgcolor: '#fff',
+              borderRadius: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FolderIcon sx={{ color: '#aaa' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          {/* tree view */}
+          <SimpleTreeView>
+            {Object.entries(mockFileStructure).map(([year, months]) => (
+              <CustomTreeItem key={year} itemId={year} label={year}>
+                {Object.entries(months).map(([month, files]) => (
+                  <CustomTreeItem key={month} itemId={`${year}-${month}`} label={month}>
+                    {files.map((file, i) => (
+                      <CustomTreeItem
+                        key={file}
+                        itemId={`${year}-${month}-${i}`}
+                        label={file}
+                      />
+                    ))}
+                  </CustomTreeItem>
+                ))}
+              </CustomTreeItem>
+            ))}
+          </SimpleTreeView>
+        </Box>
+      </Modal>
     </Box>
   );
 }
