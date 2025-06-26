@@ -1,23 +1,25 @@
-import {
-    Avatar,
-    Box,
-    IconButton,
-    Menu,
-    MenuItem,
-    Stack,
-  } from "@mui/material";
+import {Box,IconButton,Menu,MenuItem,Stack,Typography,Button,} from "@mui/material";
   import MoreVertIcon from "@mui/icons-material/MoreVert";
   import { useState } from "react";
+  import { Link, useLocation } from "react-router-dom";
+  
+  //nav to other pages
+  const navLinks = [
+    { label: "Home", path: "/" },
+    { label: "Scan", path: "/scan" },
+    { label: "Integrations", path: "/integrations" },
+    { label: "Account", path: "/account" },
+  ];
   
   export default function TopNavBar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const location = useLocation();
   
-    const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-      setAnchorEl(event.currentTarget);
+    const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
+      setAnchorEl(e.currentTarget);
     };
-  
-    const handleCloseMenu = () => {
+    const handleMenuClose = () => {
       setAnchorEl(null);
     };
   
@@ -26,35 +28,64 @@ import {
         component="header"
         sx={{
           width: "100%",
-          px: 3,
+          px: 4,
           py: 2,
+          bgcolor: "#f9f9f9",
+          borderBottom: "1px solid #e0e0e0",
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           alignItems: "center",
-          bgcolor: "#fff",
         }}
       >
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar sx={{ width: 40, height: 40, bgcolor: "#ccc" }}>D</Avatar>
+        {/* app name */}
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          color="text.secondary"
+          sx={{ userSelect: "none" }}
+        >
+          Sift
+        </Typography>
   
-          <IconButton
-            aria-label="more options"
-            onClick={handleOpenMenu}
-            sx={{ color: "#555" }}
-          >
+        {/* Nav links */}
+        <Stack direction="row" spacing={2}>
+          {navLinks.map((link) => (
+            <Button
+              key={link.path}
+              component={Link}
+              to={link.path}
+              size="small"
+              sx={{
+                textTransform: "none",
+                color: location.pathname === link.path ? "#000" : "text.secondary",
+                fontWeight: location.pathname === link.path ? "bold" : 500,
+                px: 1.5,
+                py: 0.5,
+                fontSize: "0.875rem",
+                borderRadius: "8px",
+                bgcolor: location.pathname === link.path ? "#eaeaea" : "transparent",
+                "&:hover": {
+                  backgroundColor: "#f0f0f0",
+                },
+              }}
+            >
+              {link.label}
+            </Button>
+          ))}
+  
+          {/* more / menu */}
+          <IconButton onClick={handleMenuOpen}>
             <MoreVertIcon />
           </IconButton>
-  
           <Menu
             anchorEl={anchorEl}
             open={open}
-            onClose={handleCloseMenu}
+            onClose={handleMenuClose}
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}
-            elevation={2}
           >
-            <MenuItem onClick={handleCloseMenu}>Placeholder 1</MenuItem>
-            <MenuItem onClick={handleCloseMenu}>Placeholder 2</MenuItem>
+            <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
+            <MenuItem onClick={handleMenuClose}>Log out</MenuItem>
           </Menu>
         </Stack>
       </Box>
