@@ -42,7 +42,7 @@ import {Box,Typography,Button,Paper,Stack,Divider,} from "@mui/material";
             Supercharge your workflow and connect the tools you use every day.
           </Typography>
   
-          {/* Integration List */}
+          {/* integration list */}
           <Paper variant="outlined" sx={{ borderRadius: 3 }}>
             {integrations.map((item, index) => (
               <Box key={item.name}>
@@ -73,8 +73,7 @@ import {Box,Typography,Button,Paper,Stack,Divider,} from "@mui/material";
                       "&:hover": {
                         backgroundColor: item.connected ? "#222" : "#f0f0f0",
                       },
-                    }}
-                  >
+                    }}>
                     {item.connected ? "Connected" : "Connect"}
                   </Button>
                 </Stack>

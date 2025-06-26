@@ -15,6 +15,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import { useState, useEffect } from "react";
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import CustomTreeItem from '../components/CustomTreeItem';
+import SearchFilters from '../components/SearchFilters';
 
 export default function MainHero() {
   const [loading, setLoading] = useState(true);
@@ -101,35 +102,46 @@ export default function MainHero() {
         Search for Documents
       </Typography>
 
-      {/* Search Bar with Graph View Button */}
-      <Box width="100%" maxWidth="1200px">
-        <TextField
-          placeholder="search by doc name, date or vendor"
-          variant="outlined"
-          fullWidth
+      {/* Redesigned Two-Level Search Bar */}
+      <Box width="100%" maxWidth="1200px" mb={4}>
+        <Box
           sx={{
-            width: '100%',
-            height: 48,
-            borderRadius: 5,
+            borderRadius: '30px',
             backgroundColor: '#f5f5f5',
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '999px',
-              height: '100%',
-            },
+            px: 2,
+            py: 1.5,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1,
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.08)',
           }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton edge="end">
-                  <SendIcon sx={{ color: '#000' }} />
-                </IconButton>
-                <Button onClick={handleOpenGraph} sx={{ ml: 1 }} size="small">
-                  Graph View
-                </Button>
-              </InputAdornment>
-            ),
-          }}
-        />
+        >
+          {/* Top: Text Input */}
+          <TextField
+            placeholder="What are we looking for?..."
+            variant="standard"
+            InputProps={{
+              disableUnderline: true,
+              sx: { px: 1 },
+            }}
+            fullWidth
+          />
+
+          {/* Bottom: Filters, Graph, Send */}
+          <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <SearchFilters />
+            </Box>
+            <Box display="flex" alignItems="center" gap={1}>
+              <IconButton onClick={handleOpenGraph}>
+                <FolderIcon />
+              </IconButton>
+              <IconButton>
+                <SendIcon sx={{ color: '#000' }} />
+              </IconButton>
+            </Box>
+          </Box>
+        </Box>
       </Box>
 
       {/* Graph View Overlay */}
@@ -150,7 +162,6 @@ export default function MainHero() {
             flexDirection: 'column',
           }}
         >
-          {/* Search bar */}
           <TextField
             variant="outlined"
             placeholder="Search for document..."
@@ -172,7 +183,6 @@ export default function MainHero() {
             }}
           />
 
-          {/* tree view */}
           <SimpleTreeView>
             {Object.entries(mockFileStructure).map(([year, months]) => (
               <CustomTreeItem key={year} itemId={year} label={year}>
