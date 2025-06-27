@@ -1,10 +1,4 @@
-import {
-    Box,
-    Typography,
-    IconButton,
-    Button,
-    TextField,
-  } from "@mui/material";
+import {Box,Typography,IconButton,Button,TextField,} from "@mui/material";
   import { useState, useRef, useEffect } from "react";
   import CloseIcon from "@mui/icons-material/Close";
   import FlashOnIcon from "@mui/icons-material/FlashOn";
@@ -53,51 +47,38 @@ import {
       setShowSummary(false);
     };
   
-    const handleSaveAll = () => {
-      // TODO: Save all scanned documents and metadata to the backend or S3
-      alert("Saving to folder...");
-    };
-  
-    if (showSummary && photoDataUrl) {
-      return (
-        <Box width="100%" height="100vh" bgcolor="#fff" display="flex" flexDirection="column" alignItems="center" p={2}>
-          <Box component="img" src={photoDataUrl} alt="Scanned" width="100%" maxHeight="60vh" borderRadius={2} />
-  
-          <Box mt={2} width="100%" maxWidth="500px">
-            <TextField
-              label="Vendor"
-              fullWidth
-              margin="normal"
-              value={fields.vendor}
-              onChange={(e) => setFields({ ...fields, vendor: e.target.value })}
-            />
-            <TextField
-              label="Date"
-              fullWidth
-              margin="normal"
-              value={fields.date}
-              onChange={(e) => setFields({ ...fields, date: e.target.value })}
-            />
-            <TextField
-              label="Amount"
-              fullWidth
-              margin="normal"
-              value={fields.amount}
-              onChange={(e) => setFields({ ...fields, amount: e.target.value })}
-            />
-  
-            <Box display="flex" justifyContent="space-between" mt={3}>
-              <Button variant="contained" onClick={handleContinue}>
-                Continue
-              </Button>
-              <Button variant="outlined" color="secondary" onClick={handleSaveAll}>
-                Save to Folder
-              </Button>
-            </Box>
-          </Box>
-        </Box>
-      );
-    }
+    const handleSaveAll = async () => {
+        if (!photoDataUrl) return;
+      
+        try {
+          const response = await fetch("https://your-lambda-url.amazonaws.com/dev/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              vendor: fields.vendor,
+              date: fields.date,
+              amount: fields.amount,
+              photo: photoDataUrl, // base64 string
+            }),
+          });
+      
+          const result = await response.json();
+      
+          if (result.success) {
+            alert("Upload successful!");
+            // Send tree update to localStorage for MainHero to pick up
+            localStorage.setItem("updatedTree", JSON.stringify(result.updatedTree));
+          } else {
+            alert("Upload failed: " + result.message);
+          }
+        } catch (error) {
+          console.error("Upload error:", error);
+          alert("An error occurred during upload.");
+        }
+      };
+      
   
     return (
       <Box width="100%" height="100vh" position="relative" bgcolor="#000">

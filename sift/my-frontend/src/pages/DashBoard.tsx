@@ -23,6 +23,8 @@ import StoreIcon from "@mui/icons-material/Store";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TopNavBar from "../components/TopNavBar";
 
+
+//sample data in here rn changing later
 export default function MainDashboard() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'month' | 'year'>('month');
