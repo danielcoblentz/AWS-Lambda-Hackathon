@@ -2,13 +2,14 @@ import {Box,IconButton,Menu,MenuItem,Stack,Typography,Button,} from "@mui/materi
   import MoreVertIcon from "@mui/icons-material/MoreVert";
   import { useState } from "react";
   import { Link, useLocation } from "react-router-dom";
-  
+
   
   //nav to other pages
   const navLinks = [
     { label: "Home", path: "/" },
     { label: "Scan", path: "/scan" },
     { label: "Dashboard", path: "/dashboard" },
+    { label: "Scan", path: "/scan" },
     { label: "Integrations", path: "/integrations" },
     { label: "Account", path: "/account" },
   ];

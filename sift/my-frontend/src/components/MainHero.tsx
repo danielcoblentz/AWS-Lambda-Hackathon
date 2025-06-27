@@ -21,9 +21,58 @@ export default function MainHero() {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<Array<{ title: string; vendor: string; date: string }>>([]);
   const [graphOpen, setGraphOpen] = useState(false);
+  const [treeData, setTreeData] = useState<any>({
+    "2024": {
+      January: ["Amazon - Order #123.pdf"],
+    },
+  });
+  const [selectedFolderPath, setSelectedFolderPath] = useState<string | null>(null);
+  const [renamingPath, setRenamingPath] = useState<string | null>(null);
 
   const handleOpenGraph = () => setGraphOpen(true);
   const handleCloseGraph = () => setGraphOpen(false);
+
+  const handleClickTreeItem = (path: string) => {
+    setSelectedFolderPath(path);
+  };
+
+  const addFolderAtPath = (path: string[]) => {
+    const name = `New Folder ${Date.now()}`;
+    setTreeData(prev => {
+      const updated = { ...prev };
+      let node: any = updated;
+      for (const part of path) {
+        node[part] = node[part] || {};
+        node = node[part];
+      }
+      node[name] = {};
+      return updated;
+    });
+    setRenamingPath(path.concat(name).join("/"));
+  };
+
+  const addFolder = () => {
+    const basePath = selectedFolderPath ? selectedFolderPath.split("/") : ["2024"];
+    addFolderAtPath(basePath);
+  };
+
+  const handleRename = (path: string, newName: string) => {
+    const parts = path.split("/");
+    const name = parts.pop();
+    const parentPath = parts;
+    setTreeData(prev => {
+      const updated = { ...prev };
+      let node: any = updated;
+      for (const part of parentPath) {
+        node = node[part];
+      }
+      const contents = node[name!];
+      delete node[name!];
+      node[newName] = contents;
+      return updated;
+    });
+    setRenamingPath(null);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -39,20 +88,41 @@ export default function MainHero() {
     }, 2000);
   }, []);
 
-  const mockFileStructure = {
-    "2024": {
-      January: ["Amazon - Order #123.pdf", "Chipotle - Lunch.png"],
-      February: ["CVS - Pharmacy.pdf"],
-    },
-    "2023": {
-      December: ["Uber - Ride.pdf", "BGE - Utilities.pdf"],
-    },
+  const renderTree = (node: any, path: string[] = []) => {
+    return Object.entries(node).map(([key, value]) => {
+      const fullPath = path.concat(key);
+      const fullPathStr = fullPath.join("/");
+      const isFolder = typeof value === "object" && !Array.isArray(value);
+
+      return (
+        <CustomTreeItem
+          key={fullPathStr}
+          itemId={fullPathStr}
+          label={
+            renamingPath === fullPathStr ? (
+              <TextField
+                defaultValue={key}
+                size="small"
+                variant="standard"
+                onBlur={(e) => handleRename(fullPathStr, e.target.value)}
+                autoFocus
+              />
+            ) : (
+              key
+            )
+          }
+          onClick={() => handleClickTreeItem(fullPathStr)}
+        >
+          {isFolder && renderTree(value, fullPath)}
+        </CustomTreeItem>
+      );
+    });
   };
 
   return (
     <Box width="100%" minHeight="100vh" bgcolor="#fff">
       <TopNavBar />
-      <Box height="64px" /> {/* Spacer for TopNavBar */}
+      <Box height="64px" />
 
       <Box
         px={2}
@@ -66,14 +136,14 @@ export default function MainHero() {
       >
         {/* Recent Documents */}
         <Box width="100%" mb={6}>
-          <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+          <Typography variant="subtitle1" fontWeight="bold" mb={1} textAlign="center">
             Recent Documents
           </Typography>
 
           {loading ? (
             <LinearProgress />
           ) : (
-            <Grid container spacing={2}>
+            <Grid container spacing={2} justifyContent="center">
               {documents.slice(0, 12).map((doc, index) => (
                 <Grid key={index} item xs={12} sm={6} md={3}>
                   <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
@@ -141,6 +211,12 @@ export default function MainHero() {
         {/* Graph View Modal */}
         <Modal open={graphOpen} onClose={handleCloseGraph}>
           <Box
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setSelectedFolderPath(null);
+                addFolder();
+              }
+            }}
             sx={{
               position: "absolute",
               top: "5%",
@@ -177,23 +253,14 @@ export default function MainHero() {
               }}
             />
 
-            <SimpleTreeView>
-              {Object.entries(mockFileStructure).map(([year, months]) => (
-                <CustomTreeItem key={year} itemId={year} label={year}>
-                  {Object.entries(months).map(([month, files]) => (
-                    <CustomTreeItem key={month} itemId={`${year}-${month}`} label={month}>
-                      {files.map((file, i) => (
-                        <CustomTreeItem
-                          key={file}
-                          itemId={`${year}-${month}-${i}`}
-                          label={file}
-                        />
-                      ))}
-                    </CustomTreeItem>
-                  ))}
-                </CustomTreeItem>
-              ))}
-            </SimpleTreeView>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="subtitle1">File Explorer</Typography>
+              <IconButton onClick={addFolder}>
+                <FolderIcon />
+              </IconButton>
+            </Box>
+
+            <SimpleTreeView>{renderTree(treeData)}</SimpleTreeView>
           </Box>
         </Modal>
       </Box>
