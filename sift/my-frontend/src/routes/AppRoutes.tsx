@@ -7,6 +7,7 @@ import Signup from '../pages/Signup';
 import MainDashboard from '../pages/DashBoard';
 
 
+
 //routes to each of hte pages wihtin the app
 export default function AppRoutes() {
   return (

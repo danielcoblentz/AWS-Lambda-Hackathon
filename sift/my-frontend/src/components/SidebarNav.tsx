@@ -9,9 +9,12 @@ import { Link as RouterLink } from "react-router-dom";
 import { useState } from "react";
 
 //nav links to other pages
+import DashboardIcon from "@mui/icons-material/Dashboard";
+
 const items = [
   { label: "Home", icon: <HomeIcon />, path: "/" },
   { label: "Scan", icon: <SearchIcon />, path: "/scan" },
+  { label: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" }, // Fixed spelling of "Dashboard"
   { label: "Integrations", icon: <IntegrationIcon />, path: "/integrations" },
   { label: "Account", icon: <AccountIcon />, path: "/account" },
 ];
