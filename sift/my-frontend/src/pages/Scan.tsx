@@ -1,22 +1,38 @@
-import {Box,Typography,IconButton,Button,TextField,} from "@mui/material";
-  import { useState, useRef, useEffect } from "react";
+import {
+    Box,
+    Typography,
+    IconButton,
+    Button,
+    Snackbar,
+  } from "@mui/material";
   import CloseIcon from "@mui/icons-material/Close";
   import FlashOnIcon from "@mui/icons-material/FlashOn";
   import FlashOffIcon from "@mui/icons-material/FlashOff";
+  import { useState, useRef, useEffect } from "react";
+  import DocumentSummary from "../components/DocumentSummaryScreen";
+  
+  interface Photo {
+    image: string;
+    vendor: string;
+    date: string;
+    amount: number;
+  }
   
   export default function ScanPage() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [flashOn, setFlashOn] = useState(false);
     const [photoCount, setPhotoCount] = useState(1);
+    const [photos, setPhotos] = useState<Photo[]>([]);
     const [showSummary, setShowSummary] = useState(false);
-    const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
-    const [fields, setFields] = useState({ vendor: "", date: "", amount: "" });
+    const [toastOpen, setToastOpen] = useState(false);
   
     useEffect(() => {
       const startCamera = async () => {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" },
+          });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
           }
@@ -36,61 +52,75 @@ import {Box,Typography,IconButton,Button,TextField,} from "@mui/material";
         canvasRef.current.height = videoRef.current.videoHeight;
         ctx.drawImage(videoRef.current, 0, 0);
         const dataUrl = canvasRef.current.toDataURL("image/png");
-        setPhotoDataUrl(dataUrl);
-        setShowSummary(true);
+        setPhotos((prev) => [
+          ...prev,
+          { image: dataUrl, vendor: "", date: "", amount: 0 },
+        ]);
+        setPhotoCount((count) => count + 1);
+        setToastOpen(true);
       }
     };
   
-    const handleContinue = () => {
-      setPhotoCount(photoCount + 1);
-      setFields({ vendor: "", date: "", amount: "" });
-      setShowSummary(false);
-    };
-  
     const handleSaveAll = async () => {
-        if (!photoDataUrl) return;
-      
-        try {
-          const response = await fetch("https://your-lambda-url.amazonaws.com/dev/upload", {
+      try {
+        const response = await fetch(
+          "https://your-lambda-url.amazonaws.com/dev/upload",
+          {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              vendor: fields.vendor,
-              date: fields.date,
-              amount: fields.amount,
-              photo: photoDataUrl, // base64 string
-            }),
-          });
-      
-          const result = await response.json();
-      
-          if (result.success) {
-            alert("Upload successful!");
-            // Send tree update to localStorage for MainHero to pick up
-            localStorage.setItem("updatedTree", JSON.stringify(result.updatedTree));
-          } else {
-            alert("Upload failed: " + result.message);
+            body: JSON.stringify({ photos }),
           }
-        } catch (error) {
-          console.error("Upload error:", error);
-          alert("An error occurred during upload.");
+        );
+  
+        const result = await response.json();
+  
+        if (result.success) {
+          alert("Upload successful!");
+          localStorage.setItem("updatedTree", JSON.stringify(result.updatedTree));
+        } else {
+          alert("Upload failed: " + result.message);
         }
-      };
-      
+      } catch (error) {
+        console.error("Upload error:", error);
+        alert("An error occurred during upload.");
+      }
+    };
+  
+    if (showSummary) {
+      return (
+        <DocumentSummary
+          photos={photos}
+          setPhotos={setPhotos}
+          onSaveAll={handleSaveAll}
+        />
+      );
+    }
   
     return (
       <Box width="100%" height="100vh" position="relative" bgcolor="#000">
-        <video ref={videoRef} autoPlay playsInline muted style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover" }} />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
         <canvas ref={canvasRef} style={{ display: "none" }} />
   
-        {/* Exit button */}
-        <IconButton sx={{ position: "absolute", top: 16, right: 16, color: "white" }} onClick={() => window.history.back()}>
+        <IconButton
+          sx={{ position: "absolute", top: 16, right: 16, color: "white" }}
+          onClick={() => window.history.back()}
+        >
           <CloseIcon />
         </IconButton>
   
-        {/* Flash toggle */}
         <IconButton
           sx={{ position: "absolute", top: 16, left: 16, color: "white" }}
           onClick={() => setFlashOn(!flashOn)}
@@ -98,7 +128,29 @@ import {Box,Typography,IconButton,Button,TextField,} from "@mui/material";
           {flashOn ? <FlashOnIcon /> : <FlashOffIcon />}
         </IconButton>
   
-        {/* Capture Button */}
+        {photos.length > 0 && !showSummary && (
+  <Button
+    onClick={() => setShowSummary(true)}
+    sx={{
+      position: "fixed",
+      bottom: 16,
+      right: 16,
+      backgroundColor: "#eaeaea",
+      color: "#000",
+      fontWeight: 500,
+      borderRadius: "8px",
+      px: 3,
+      py: 1,
+      textTransform: "none",
+      zIndex: 10,
+      boxShadow: "0px 2px 6px rgba(0,0,0,0.2)",
+      "&:hover": { backgroundColor: "#f0f0f0" },
+    }}
+  >
+    Review & Save
+  </Button>
+        )}
+  
         <Box
           position="absolute"
           bottom={40}
@@ -125,6 +177,14 @@ import {Box,Typography,IconButton,Button,TextField,} from "@mui/material";
             {photoCount}
           </Box>
         </Box>
+  
+        <Snackbar
+          open={toastOpen}
+          autoHideDuration={2000}
+          onClose={() => setToastOpen(false)}
+          message="Photo captured!"
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        />
       </Box>
     );
   }
