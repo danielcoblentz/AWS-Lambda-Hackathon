@@ -17,6 +17,7 @@ import CustomTreeItem from "../components/CustomTreeItem";
 import SearchFilters from "../components/SearchFilters";
 import TopNavBar from "../components/TopNavBar";
 
+
 export default function MainHero() {
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState<Array<{ title: string; vendor: string; date: string }>>([]);
@@ -38,7 +39,7 @@ export default function MainHero() {
 
   const addFolderAtPath = (path: string[]) => {
     const name = `New Folder ${Date.now()}`;
-    setTreeData(prev => {
+    setTreeData((prev: any) => {
       const updated = { ...prev };
       let node: any = updated;
       for (const part of path) {
@@ -60,7 +61,7 @@ export default function MainHero() {
     const parts = path.split("/");
     const name = parts.pop();
     const parentPath = parts;
-    setTreeData(prev => {
+    setTreeData((prev: any) => {
       const updated = { ...prev };
       let node: any = updated;
       for (const part of parentPath) {

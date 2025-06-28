@@ -1,11 +1,5 @@
-// DocumentSummary.tsx
-import {
-    Box,
-    Typography,
-    Button,
-    TextField,
-    IconButton,
-  } from "@mui/material";
+
+import {Box,Typography,Button,TextField,IconButton,} from "@mui/material";
   import DeleteIcon from "@mui/icons-material/Delete";
   import RotateLeftIcon from "@mui/icons-material/RotateLeft";
   import CameraAltIcon from "@mui/icons-material/CameraAlt";

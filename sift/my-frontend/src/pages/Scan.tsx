@@ -15,7 +15,7 @@ import {
     image: string;
     vendor: string;
     date: string;
-    amount: number;
+    amount: string;
   }
   
   export default function ScanPage() {
@@ -54,7 +54,7 @@ import {
         const dataUrl = canvasRef.current.toDataURL("image/png");
         setPhotos((prev) => [
           ...prev,
-          { image: dataUrl, vendor: "", date: "", amount: 0 },
+          { image: dataUrl, vendor: "", date: "", amount: "" },
         ]);
         setPhotoCount((count) => count + 1);
         setToastOpen(true);

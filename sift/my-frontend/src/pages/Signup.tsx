@@ -1,5 +1,3 @@
-// pages/Signup.tsx
-
 import {
   Box,
   Typography,
@@ -8,15 +6,62 @@ import {
   Divider,
   InputAdornment,
   IconButton,
+  Snackbar,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
 
+// Environment variables for Cognito
+const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
+const COGNITO_REGION = import.meta.env.VITE_COGNITO_REGION;
+const COGNITO_ENDPOINT = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
+
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSignup = async () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await fetch(COGNITO_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-amz-json-1.1",
+          "X-Amz-Target": "AWSCognitoIdentityProviderService.SignUp",
+        },
+        body: JSON.stringify({
+          ClientId: COGNITO_CLIENT_ID,
+          Username: email,
+          Password: password,
+          UserAttributes: [
+            { Name: "email", Value: email },
+            { Name: "name", Value: name },
+          ],
+        }),
+      });
+
+      const result = await response.json();
+      if (result.userConfirmed === false || result.UserSub) {
+        alert("Signup successful! Please check your email for confirmation.");
+      } else {
+        setError(result.message || "Signup failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Network or Cognito error occurred.");
+    }
+  };
 
   return (
     <Box
@@ -36,12 +81,10 @@ export default function Signup() {
         py={6}
         boxShadow="0px 6px 18px rgba(0, 0, 0, 0.05)"
       >
-        {/* Logo */}
         <Typography variant="h6" fontWeight="bold" mb={2}>
-          .Finance
+          Sift
         </Typography>
 
-        {/* Welcome Text */}
         <Typography variant="h5" fontWeight="bold" mb={1}>
           Create Your Account
         </Typography>
@@ -49,39 +92,33 @@ export default function Signup() {
           Please fill in the details below
         </Typography>
 
-        {/* Name Input */}
         <TextField
           fullWidth
           placeholder="Jane Doe"
           variant="standard"
-          InputProps={{
-            disableUnderline: false,
-            sx: { pb: 2 },
-          }}
-          sx={{
-            mb: 3,
-            '& .MuiInputBase-input': { fontSize: '1rem' },
-          }}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          InputProps={{ disableUnderline: false, sx: { pb: 2 } }}
+          sx={{ mb: 3, '& .MuiInputBase-input': { fontSize: '1rem' } }}
         />
 
-        {/* Email Input */}
         <TextField
           fullWidth
           placeholder="example@email.com"
           variant="standard"
-          InputProps={{
-            disableUnderline: false,
-            sx: { pb: 2 },
-          }}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          InputProps={{ disableUnderline: false, sx: { pb: 2 } }}
           sx={{ mb: 3 }}
         />
 
-        {/* Password Input */}
         <TextField
           fullWidth
           type={showPassword ? "text" : "password"}
           placeholder="Create a password"
           variant="standard"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             disableUnderline: false,
             endAdornment: (
@@ -96,12 +133,13 @@ export default function Signup() {
           sx={{ mb: 3 }}
         />
 
-        {/* Confirm Password Input */}
         <TextField
           fullWidth
           type={showConfirmPassword ? "text" : "password"}
           placeholder="Confirm password"
           variant="standard"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           InputProps={{
             disableUnderline: false,
             endAdornment: (
@@ -116,10 +154,10 @@ export default function Signup() {
           sx={{ mb: 3 }}
         />
 
-        {/* Sign Up Button */}
         <Button
           fullWidth
           variant="contained"
+          onClick={handleSignup}
           sx={{
             bgcolor: "#000",
             color: "#fff",
@@ -134,7 +172,6 @@ export default function Signup() {
           Create Account
         </Button>
 
-        {/* Divider */}
         <Box display="flex" alignItems="center" mb={2}>
           <Divider sx={{ flexGrow: 1 }} />
           <Typography mx={2} variant="caption" color="text.secondary">
@@ -143,7 +180,6 @@ export default function Signup() {
           <Divider sx={{ flexGrow: 1 }} />
         </Box>
 
-        {/* Google Sign Up */}
         <Button
           variant="outlined"
           fullWidth
@@ -158,13 +194,20 @@ export default function Signup() {
           Sign up with Google
         </Button>
 
-        {/* Login Link */}
         <Typography mt={3} variant="caption" textAlign="center" display="block">
           Already have an account?{" "}
-          <a href="#" style={{ fontWeight: 500, textDecoration: "none" }}>
+          <a href="/login" style={{ fontWeight: 500, textDecoration: "none" }}>
             Log In
           </a>
         </Typography>
+
+        <Snackbar
+          open={!!error}
+          autoHideDuration={3000}
+          onClose={() => setError("")}
+          message={error}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        />
       </Box>
     </Box>
   );

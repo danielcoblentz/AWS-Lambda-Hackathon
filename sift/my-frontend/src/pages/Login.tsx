@@ -1,21 +1,51 @@
-// pages/Login.tsx
-
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Divider,
-  InputAdornment,
-  IconButton,
-} from "@mui/material";
+import {Box,Typography,TextField,Button,Divider,InputAdornment,IconButton,Snackbar,} from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
 
+// Get values from environment variables
+const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
+const COGNITO_REGION = import.meta.env.VITE_COGNITO_REGION;
+const COGNITO_ENDPOINT = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(COGNITO_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-amz-json-1.1",
+          "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
+        },
+        body: JSON.stringify({
+          AuthFlow: "USER_PASSWORD_AUTH",
+          ClientId: COGNITO_CLIENT_ID,
+          AuthParameters: {
+            USERNAME: email,
+            PASSWORD: password,
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.AuthenticationResult?.IdToken) {
+        localStorage.setItem("idToken", result.AuthenticationResult.IdToken);
+        alert("Login successful!");
+      } else {
+        setError(result.message || "Login failed.");
+      }
+    } catch (err) {
+      setError("Network or Cognito error occurred.");
+      console.error(err);
+    }
+  };
 
   return (
     <Box
@@ -35,12 +65,10 @@ export default function Login() {
         py={6}
         boxShadow="0px 6px 18px rgba(0, 0, 0, 0.05)"
       >
-        {/* Logo */}
         <Typography variant="h6" fontWeight="bold" mb={2}>
           Sift
         </Typography>
 
-        {/* Welcome Text */}
         <Typography variant="h5" fontWeight="bold" mb={1}>
           Welcome Back!
         </Typography>
@@ -48,27 +76,26 @@ export default function Login() {
           Please enter log in details below
         </Typography>
 
-        {/* Email Input (Underline only) */}
         <TextField
           fullWidth
           placeholder="example@email.com"
           variant="standard"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           InputProps={{
             disableUnderline: false,
             sx: { pb: 2 },
           }}
-          sx={{
-            mb: 3,
-            '& .MuiInputBase-input': { fontSize: '1rem' },
-          }}
+          sx={{ mb: 3, '& .MuiInputBase-input': { fontSize: '1rem' } }}
         />
 
-        {/* Password Input (Underline only, with toggle) */}
         <TextField
           fullWidth
           type={showPassword ? "text" : "password"}
           placeholder="••••••••"
           variant="standard"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             disableUnderline: false,
             endAdornment: (
@@ -83,17 +110,16 @@ export default function Login() {
           sx={{ mb: 1 }}
         />
 
-        {/* Forget Password */}
         <Typography variant="caption" align="right" display="block" mb={3}>
           <a href="#" style={{ color: "#666", textDecoration: "none" }}>
             Forget password?
           </a>
         </Typography>
 
-        {/* Sign In Button */}
         <Button
           fullWidth
           variant="contained"
+          onClick={handleLogin}
           sx={{
             bgcolor: "#000",
             color: "#fff",
@@ -108,7 +134,6 @@ export default function Login() {
           Sign in
         </Button>
 
-        {/* Divider */}
         <Box display="flex" alignItems="center" mb={2}>
           <Divider sx={{ flexGrow: 1 }} />
           <Typography mx={2} variant="caption" color="text.secondary">
@@ -117,7 +142,6 @@ export default function Login() {
           <Divider sx={{ flexGrow: 1 }} />
         </Box>
 
-        {/* Google Sign In */}
         <Button
           variant="outlined"
           fullWidth
@@ -132,7 +156,6 @@ export default function Login() {
           Log in with Google
         </Button>
 
-        {/* Sign Up Link */}
         <Typography mt={3} variant="caption" textAlign="center" display="block">
           Don’t have an account?{" "}
           <a href="#" style={{ fontWeight: 500, textDecoration: "none" }}>
@@ -140,6 +163,14 @@ export default function Login() {
           </a>
         </Typography>
       </Box>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={3000}
+        onClose={() => setError("")}
+        message={error}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      />
     </Box>
   );
 }
