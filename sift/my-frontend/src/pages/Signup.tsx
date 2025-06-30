@@ -12,8 +12,8 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Environment variables for Cognito
 const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
 const COGNITO_REGION = import.meta.env.VITE_COGNITO_REGION;
 const COGNITO_ENDPOINT = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
@@ -26,6 +26,8 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -42,7 +44,7 @@ export default function Signup() {
         },
         body: JSON.stringify({
           ClientId: COGNITO_CLIENT_ID,
-          Username: email,
+          Username: name,
           Password: password,
           UserAttributes: [
             { Name: "email", Value: email },
@@ -52,13 +54,15 @@ export default function Signup() {
       });
 
       const result = await response.json();
-      if (result.userConfirmed === false || result.UserSub) {
-        alert("Signup successful! Please check your email for confirmation.");
+
+      if (!result.__type) {
+        sessionStorage.setItem("verificationEmail", name);
+        sessionStorage.setItem("tempPassword", password);
+        navigate("/verify");
       } else {
         setError(result.message || "Signup failed.");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError("Network or Cognito error occurred.");
     }
   };
@@ -99,7 +103,7 @@ export default function Signup() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           InputProps={{ disableUnderline: false, sx: { pb: 2 } }}
-          sx={{ mb: 3, '& .MuiInputBase-input': { fontSize: '1rem' } }}
+          sx={{ mb: 3, "& .MuiInputBase-input": { fontSize: "1rem" } }}
         />
 
         <TextField
@@ -166,7 +170,7 @@ export default function Signup() {
             py: 1.5,
             fontWeight: 600,
             mb: 2,
-            '&:hover': { bgcolor: "#222" },
+            "&:hover": { bgcolor: "#222" },
           }}
         >
           Create Account

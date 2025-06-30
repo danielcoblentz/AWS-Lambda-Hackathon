@@ -1,14 +1,13 @@
-import React from "react";
-import type { JSX } from "react";
-import { Navigate } from "react-router-dom"; // ✅ This is the missing import
-import { useAuth } from "../services/AuthContext";
+import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({ children }: { children: JSX.Element }) {
-  const { isAuthenticated } = useAuth();
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("idToken");
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (!token) {
+    console.warn("🔒 No token found — redirecting to /login");
+    return <Navigate to="/login" />;
   }
 
-  return children;
+  console.log("🔓 Authenticated — rendering protected route");
+  return <>{children}</>;
 }

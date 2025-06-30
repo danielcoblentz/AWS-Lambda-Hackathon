@@ -1,11 +1,4 @@
-import {
-    Box,
-    Typography,
-    IconButton,
-    Button,
-    TextField,
-    Stack,
-  } from "@mui/material";
+import {Box,Typography,IconButton,Button,TextField,Stack,} from "@mui/material";
   import CloseIcon from "@mui/icons-material/Close";
   import React, { useState } from 'react';
   
@@ -42,7 +35,7 @@ import {
         flexDirection="column"
         bgcolor="#fdfdfd"
       >
-        {/* Image Preview */}
+        {/* img preview */}
         <Box
           component="img"
           src={image}
@@ -52,7 +45,7 @@ import {
           borderRadius={2}
         />
   
-        {/* Metadata Form */}
+        {/* metadata form should be populated after lambda call */}
         <Box
           mt={2}
           width="100%"

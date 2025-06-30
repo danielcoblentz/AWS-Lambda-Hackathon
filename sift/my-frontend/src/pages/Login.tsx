@@ -1,10 +1,19 @@
-import {Box,Typography,TextField,Button,Divider,InputAdornment,IconButton,Snackbar,} from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Divider,
+  InputAdornment,
+  IconButton,
+  Snackbar,
+} from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Get values from environment variables
 const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
 const COGNITO_REGION = import.meta.env.VITE_COGNITO_REGION;
 const COGNITO_ENDPOINT = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
@@ -14,48 +23,57 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
+      const payload = {
+        AuthFlow: "USER_PASSWORD_AUTH",
+        ClientId: COGNITO_CLIENT_ID,
+        AuthParameters: {
+          USERNAME: email,
+          PASSWORD: password,
+        },
+      };
+
       const response = await fetch(COGNITO_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-amz-json-1.1",
           "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth",
         },
-        body: JSON.stringify({
-          AuthFlow: "USER_PASSWORD_AUTH",
-          ClientId: COGNITO_CLIENT_ID,
-          AuthParameters: {
-            USERNAME: email,
-            PASSWORD: password,
-          },
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
 
-      if (result.AuthenticationResult?.IdToken) {
+      if (result.ChallengeName === "NEW_PASSWORD_REQUIRED") {
+        setError("New password required. This flow is not supported.");
+        return;
+      }
+
+      if (result.ChallengeName === "SMS_MFA") {
+        setError("MFA required. This flow is not supported.");
+        return;
+      }
+
+      if (result.Session && !result.AuthenticationResult) {
+        sessionStorage.setItem("verificationSession", result.Session);
+        sessionStorage.setItem("verificationEmail", email);
+        navigate("/verify");
+      } else if (result.AuthenticationResult?.IdToken) {
         localStorage.setItem("idToken", result.AuthenticationResult.IdToken);
-        alert("Login successful!");
+        navigate("/dashboard");
       } else {
         setError(result.message || "Login failed.");
       }
-    } catch (err) {
+    } catch {
       setError("Network or Cognito error occurred.");
-      console.error(err);
     }
   };
 
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      bgcolor="#f5f7f9"
-      px={2}
-    >
+    <Box minHeight="100vh" display="flex" justifyContent="center" alignItems="center" bgcolor="#f5f7f9" px={2}>
       <Box
         width="100%"
         maxWidth="400px"
@@ -65,16 +83,9 @@ export default function Login() {
         py={6}
         boxShadow="0px 6px 18px rgba(0, 0, 0, 0.05)"
       >
-        <Typography variant="h6" fontWeight="bold" mb={2}>
-          Sift
-        </Typography>
-
-        <Typography variant="h5" fontWeight="bold" mb={1}>
-          Welcome Back!
-        </Typography>
-        <Typography variant="body2" color="text.secondary" mb={4}>
-          Please enter log in details below
-        </Typography>
+        <Typography variant="h6" fontWeight="bold" mb={2}>Sift</Typography>
+        <Typography variant="h5" fontWeight="bold" mb={1}>Welcome Back!</Typography>
+        <Typography variant="body2" color="text.secondary" mb={4}>Please enter log in details below</Typography>
 
         <TextField
           fullWidth
@@ -82,10 +93,7 @@ export default function Login() {
           variant="standard"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          InputProps={{
-            disableUnderline: false,
-            sx: { pb: 2 },
-          }}
+          InputProps={{ disableUnderline: false, sx: { pb: 2 } }}
           sx={{ mb: 3, '& .MuiInputBase-input': { fontSize: '1rem' } }}
         />
 
@@ -111,9 +119,7 @@ export default function Login() {
         />
 
         <Typography variant="caption" align="right" display="block" mb={3}>
-          <a href="#" style={{ color: "#666", textDecoration: "none" }}>
-            Forget password?
-          </a>
+          <a href="#" style={{ color: "#666", textDecoration: "none" }}>Forget password?</a>
         </Typography>
 
         <Button
@@ -136,9 +142,7 @@ export default function Login() {
 
         <Box display="flex" alignItems="center" mb={2}>
           <Divider sx={{ flexGrow: 1 }} />
-          <Typography mx={2} variant="caption" color="text.secondary">
-            or continue
-          </Typography>
+          <Typography mx={2} variant="caption" color="text.secondary">or continue</Typography>
           <Divider sx={{ flexGrow: 1 }} />
         </Box>
 
@@ -158,7 +162,7 @@ export default function Login() {
 
         <Typography mt={3} variant="caption" textAlign="center" display="block">
           Don’t have an account?{" "}
-          <a href="#" style={{ fontWeight: 500, textDecoration: "none" }}>
+          <a href="/signup" style={{ fontWeight: 500, textDecoration: "none" }}>
             Sign Up
           </a>
         </Typography>
@@ -166,7 +170,7 @@ export default function Login() {
 
       <Snackbar
         open={!!error}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
         onClose={() => setError("")}
         message={error}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}

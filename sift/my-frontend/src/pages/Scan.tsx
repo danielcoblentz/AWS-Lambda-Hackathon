@@ -15,8 +15,7 @@ import {
     image: string;
     vendor: string;
     date: string;
-    amount: string;
-  }
+    amount: string;}
   
   export default function ScanPage() {
     const videoRef = useRef<HTMLVideoElement | null>(null);

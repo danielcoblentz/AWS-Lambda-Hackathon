@@ -1,6 +1,7 @@
 import {Avatar,Box,Grid,Typography,Paper,TextField,} from "@mui/material";
 import TopNavBar from "../components/TopNavBar";
 
+//sample data in here rn
 export default function Account() {
   const infoCards = [
     { label: "Name", value: "Daniel Rosier" },
@@ -20,7 +21,7 @@ export default function Account() {
         </Typography>
 
         <Grid container spacing={6}>
-          {/* LEFT PROFILE */}
+          {/* left profile thing  */}
           <Grid item xs={12} md={4}>
             <Avatar sx={{ width: 80, height: 80, bgcolor: "#ccc" }}>D</Avatar>
             <Box mt={2}>

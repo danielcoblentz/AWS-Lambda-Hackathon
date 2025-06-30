@@ -14,7 +14,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 const items = [
   { label: "Home", icon: <HomeIcon />, path: "/" },
   { label: "Scan", icon: <SearchIcon />, path: "/scan" },
-  { label: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" }, // Fixed spelling of "Dashboard"
+  { label: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
   { label: "Integrations", icon: <IntegrationIcon />, path: "/integrations" },
   { label: "Account", icon: <AccountIcon />, path: "/account" },
 ];

@@ -1,4 +1,3 @@
-// authService.ts
 const COGNITO_REGION = import.meta.env.VITE_COGNITO_REGION;
 const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
 const COGNITO_ENDPOINT = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;

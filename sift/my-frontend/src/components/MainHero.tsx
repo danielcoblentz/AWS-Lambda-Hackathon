@@ -1,13 +1,4 @@
-import {
-  Box,
-  Typography,
-  LinearProgress,
-  Paper,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Modal,
-} from "@mui/material";
+import {Box,Typography,LinearProgress,Paper,TextField,InputAdornment,IconButton,Modal,} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import SendIcon from "@mui/icons-material/Send";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -135,7 +126,7 @@ export default function MainHero() {
         flexDirection="column"
         alignItems="center"
       >
-        {/* Recent Documents */}
+        {/* recent docs */}
         <Box width="100%" mb={6}>
           <Typography variant="subtitle1" fontWeight="bold" mb={1} textAlign="center">
             Recent Documents
@@ -164,12 +155,12 @@ export default function MainHero() {
           )}
         </Box>
 
-        {/* Search Header */}
+        {/* search header */}
         <Typography variant="h5" fontWeight="bold" color="#3a3a3a" mb={2}>
           Search for Documents
         </Typography>
 
-        {/* Search Bar */}
+        {/* search bar */}
         <Box width="100%" mb={4}>
           <Box
             sx={{
@@ -209,7 +200,7 @@ export default function MainHero() {
           </Box>
         </Box>
 
-        {/* Graph View Modal */}
+        {/* graph view modal */}
         <Modal open={graphOpen} onClose={handleCloseGraph}>
           <Box
             onClick={(e) => {

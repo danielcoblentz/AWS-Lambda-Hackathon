@@ -1,22 +1,4 @@
-import {
-  Box,
-  Typography,
-  Paper,
-  Divider,
-  LinearProgress,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
-  ToggleButton,
-  ToggleButtonGroup,
-  Fade,
-  MenuItem,
-  FormControl,
-  Select,
-  InputLabel,
-} from "@mui/material";
+import {Box,Typography,Paper,Divider,LinearProgress,List,ListItem,ListItemText,ListItemAvatar,Avatar,ToggleButton,ToggleButtonGroup,Fade,MenuItem,FormControl,Select,InputLabel,} from "@mui/material";
 import { useEffect, useState } from "react";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import StoreIcon from "@mui/icons-material/Store";
@@ -172,7 +154,7 @@ export default function MainDashboard() {
             </Box>
           </Box>
 
-          {/* Transactions full width */}
+          {/* Transactions */}
           <Box width="100%">
             <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: "#f9f9f9" }}>
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
