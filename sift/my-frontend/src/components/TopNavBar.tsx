@@ -9,7 +9,6 @@ import {Box,IconButton,Menu,MenuItem,Stack,Typography,Button,} from "@mui/materi
     { label: "Home", path: "/" },
     { label: "Scan", path: "/scan" },
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Scan", path: "/scan" },
     { label: "Integrations", path: "/integrations" },
     { label: "Account", path: "/account" },
   ];

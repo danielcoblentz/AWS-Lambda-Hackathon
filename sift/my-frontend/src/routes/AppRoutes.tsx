@@ -10,7 +10,6 @@ import Verify from "../pages/verify";
 import ProtectedRoute from "../components/protectedRoute";
 
 export default function AppRoutes() {
-  console.log("✅ AppRoutes initialized");
 
   return (
     <Routes>

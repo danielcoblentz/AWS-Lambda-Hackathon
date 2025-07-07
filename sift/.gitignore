@@ -39,3 +39,5 @@ REACT_APP_REDIRECT_URL = 2ve29s1o0gihe71psda6n95ljh
 REACT_APP_RESPONSE_TYPE = code
 REACT_APP_RESPONSE_SCOPE = openid email profile
 
+.env
+sift/backend/src/main/resources/application.properties

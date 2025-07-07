@@ -20,7 +20,7 @@ public class Receipt {
     @Column(name = "user_id")
     private String userId;
 
-    // Getters and setters...
+    // Getters and setters 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
