@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: Sift
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_1cdbpsvt0
+          jwk-set-uri: ${aws.jwksUri}
+  datasource:
+    url: jdbc:mysql://localhost:3306/receipt_db
+    username: root
+    password: Aventus5244!
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+aws:
+  region: us-east-1
+  userPoolId: 1cdbpsvt0r0g0kqftnf4mka6s8
+  jwksUri: https://cognito-idp.us-east-1.amazonaws.com/1cdbpsvt0r0g0kqftnf4mka6s8/.well-known/jwks.json
